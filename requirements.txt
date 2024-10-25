@@ -77,4 +77,3 @@ rtree==0.9.7
 
 git+https://github.com/dbca-wa/appmonitor_client.git#egg=appmonitor_client
 python-decouple==3.8
-

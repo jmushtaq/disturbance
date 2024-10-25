@@ -868,11 +868,12 @@ export default {
             }
         },
 
-        deficientFields(){
+        deficientFieldsLegacy(){
             let vm=this;
-            //console.log("I am here");
+            console.log("I am here");
             let deficient_fields=[]
             $('.deficiency').each((i,d) => {
+                console.log('inside deficient')
                 if($(d).val() != ''){
                     var name=$(d)[0].name
                     var tmp=name.replace("-comment-field","")
@@ -883,8 +884,17 @@ export default {
             //console.log('deficient fields', deficient_fields);
             vm.highlight_deficient_fields(deficient_fields);
         },
+        deficientFields() {
+            let vm=this;
+            let deficient_fields=[]
+            if(vm.proposal.comment_data){
+                deficient_fields= vm.proposal.comment_data
+                    .filter(item => item.assessor !== '')
+                    .map(item => item.name);
+            }
+            vm.highlight_deficient_fields(deficient_fields);
+        },
         submit: function(){
-            console.log('in submit');
 
             let vm = this;
             vm.form=document.forms.new_proposal;
@@ -928,13 +938,11 @@ export default {
                 showCancelButton: true,
                 confirmButtonText: 'Submit'
             }).then(async () => {
-                console.log('in then()');
                 vm.submittingProposal = true;
                 // Only Apiary has an application fee
                 //if (!vm.proposal.fee_paid && ['Apiary', 'Site Transfer'].includes(vm.proposal.application_type)) {
                 if (['Apiary', 'Site Transfer'].includes(vm.proposal.application_type)) {
                     //if (this.submit_button_text === 'Pay and submit' && ['Apiary', 'Site Transfer'].includes(vm.proposal.application_type)) {
-                    console.log('--- save and pay ---')
                     vm.save_and_redirect();
                 } else {
                     /* just save and submit - no payment required (probably application was pushed back by assessor for amendment */
@@ -978,7 +986,6 @@ export default {
         },
         // Apiary submission
         save_and_redirect: async function(e) {
-            console.log('in save_and_redirect');
             this.isSaving = true;
             let vm = this;
             vm.form=document.forms.new_proposal;
@@ -1006,10 +1013,8 @@ export default {
                 },
                 err=>{
                     if (err.body.type && err.body.type[0] === 'site_no_longer_available'){
-                        console.log('1')
                         vm.display_site_no_longer_available_modal(err)
                     } else {
-                        console.log('2')
                         helpers.processError(err)
                         vm.submittingProposal = false
                     }
@@ -1094,7 +1099,6 @@ export default {
         }
     },
     mounted: function() {
-        console.log('in mounted')
 
         let vm = this;
         vm.form = document.forms.new_proposal;
@@ -1119,7 +1123,7 @@ export default {
         });
     },
     created: function() {
-        console.log('in created')
+
         console.log('proposal_id: ' + this.$route.params.proposal_id)
         let proposal_id = this.$route.params.proposal_id
 
